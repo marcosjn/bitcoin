@@ -16,7 +16,11 @@ with urllib.request.urlopen("https://www.mercadobitcoin.net/api/BTC/ticker/") as
     data = json.loads(url.read().decode())
 
 ticker = data['ticker']
-print("Volume = ",ticker['vol'])
+volume = float(ticker['vol'])
+ultimo = float(ticker['last'])
+volume_em_reais = float(volume*ultimo)
+print("Volume = ",volume_em_reais)
+print("Valor = ",ultimo)
 
 # ORDERBOOK
 
@@ -50,13 +54,17 @@ sellbook = data['asks']
 i = 0;
 for buy in buybook:
     i = i + 1
-    print(i, " : ", buy)
+    valor = float(buy[0])
+    quantidade = float(buy[1])
+    total = float(valor*quantidade)
+    peso_ordem = float(total/volume_em_reais*1000)
+    print(i, " : ", buy, " - ", total, " - ", peso_ordem)
 
 i = 0;
 for sell in sellbook:
     i = i + 1
-    print(i, " : ", sell)
-#print("Volume = ",ticker['vol'])    
+    #print(i, " : ", sell)
+   
 
 
 # TRADES
