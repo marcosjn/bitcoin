@@ -1,80 +1,94 @@
-import urllib.request, json 
+import urllib.request
+import json
 
-# TICKER
+def main():
+    """Função principal"""
 
-# Retorna informações com o resumo das últimas 24 horas de negociações.
+    # TICKER
 
-#  high: Maior preço unitário de negociação das últimas 24 horas. Tipo: Decimal
-#  low: Menor preço unitário de negociação das últimas 24 horas. Tipo: Decimal
-#  vol: Quantidade negociada nas últimas 24 horas. Tipo: Decimal
-#  last: Preço unitário da última negociação. Tipo: Decimal
-#  buy: Maior preço de oferta de compra das últimas 24 horas. Tipo: Decimal
-#  sell: Menor preço de oferta de venda das últimas 24 horas. Tipo: Decimal
-#  date: Data e hora da informação em Era Unix. Tipo: Inteiro
+    # Retorna informações com o resumo das últimas 24 horas de negociações.
 
-with urllib.request.urlopen("https://www.mercadobitcoin.net/api/BTC/ticker/") as url:
-    data = json.loads(url.read().decode())
+    #  high: Maior preço unitário de negociação das últimas 24 horas. Tipo: Decimal
+    #  low: Menor preço unitário de negociação das últimas 24 horas. Tipo: Decimal
+    #  vol: Quantidade negociada nas últimas 24 horas. Tipo: Decimal
+    #  last: Preço unitário da última negociação. Tipo: Decimal
+    #  buy: Maior preço de oferta de compra das últimas 24 horas. Tipo: Decimal
+    #  sell: Menor preço de oferta de venda das últimas 24 horas. Tipo: Decimal
+    #  date: Data e hora da informação em Era Unix. Tipo: Inteiro
 
-ticker = data['ticker']
-print("Volume = ",ticker['vol'])
+    with urllib.request.urlopen("https://www.mercadobitcoin.net/api/BTC/ticker/") as url:
+        data = json.loads(url.read().decode())
 
-# ORDERBOOK
+    ticker = data['ticker']
+    volume = float(ticker['vol'])
+    ultimo = float(ticker['last'])
+    volume_em_reais = float(volume*ultimo)
+    print("Volume = ",volume_em_reais)
+    print("Valor = ",ultimo)
 
-# Livro de ofertas é composto por duas listas: 
-# (1) uma lista com as ofertas de compras ordenadas pelo maior valor; 
-# (2) uma lista com as ofertas de venda ordenadas pelo menor valor. 
-# O livro mostra até 1000 ofertas de compra e até 1000 ofertas de venda.
+    # ORDERBOOK
 
-# Uma oferta é constituída por uma ou mais ordens, sendo assim, a quantidade da oferta é o resultado da soma 
-#		das quantidades das ordens de mesmo preço unitário. Caso uma oferta represente mais de uma ordem, 
-#		a prioridade de execução se dá com base na data de criação da ordem, da mais antiga para a mais nova.
+    # Livro de ofertas é composto por duas listas: 
+    # (1) uma lista com as ofertas de compras ordenadas pelo maior valor; 
+    # (2) uma lista com as ofertas de venda ordenadas pelo menor valor. 
+    # O livro mostra até 1000 ofertas de compra e até 1000 ofertas de venda.
 
-# bids: Lista de ofertas de compras, ordenadas do maior para o menor preço.
-# Tipo: Array
-# [0]: Preço unitário da oferta de compra.
-# Tipo: Decimal
-# [1]: Quantidade da oferta de compra.
-# Tipo: Decimal
-#  asks: Lista de ofertas de venda, ordenadas do menor para o maior preço.
-# Tipo: Array
-# [0]: Preço unitário da oferta de venda.
-# Tipo: Decimal
-# [1]: Quantidade da oferta de venda.
-# Tipo: Decimal
+    # Uma oferta é constituída por uma ou mais ordens, sendo assim, a quantidade da oferta é o resultado da soma 
+    #		das quantidades das ordens de mesmo preço unitário. Caso uma oferta represente mais de uma ordem, 
+    #		a prioridade de execução se dá com base na data de criação da ordem, da mais antiga para a mais nova.
 
-with urllib.request.urlopen("https://www.mercadobitcoin.net/api/BTC/orderbook/") as url:
-    data = json.loads(url.read().decode())
+    # bids: Lista de ofertas de compras, ordenadas do maior para o menor preço.
+    # Tipo: Array
+    # [0]: Preço unitário da oferta de compra.
+    # Tipo: Decimal
+    # [1]: Quantidade da oferta de compra.
+    # Tipo: Decimal
+    #  asks: Lista de ofertas de venda, ordenadas do menor para o maior preço.
+    # Tipo: Array
+    # [0]: Preço unitário da oferta de venda.
+    # Tipo: Decimal
+    # [1]: Quantidade da oferta de venda.
+    # Tipo: Decimal
 
-buybook = data['bids']
-sellbook = data['asks']
-i = 0;
-for buy in buybook:
-    i = i + 1
-    amount = buy[0]*buy[1]
-    print(i, " : ", buy, " - ", amount)
+    with urllib.request.urlopen("https://www.mercadobitcoin.net/api/BTC/orderbook/") as url:
+        data = json.loads(url.read().decode())
 
-i = 0;
-for sell in sellbook:
-    i = i + 1
-    print(i, " : ", sell)
-#print("Volume = ",ticker['vol'])    
+    buybook = data['bids']
+    sellbook = data['asks']
+    i = 0;
+    for buy in buybook:
+        i = i + 1
+        valor = float(buy[0])
+        quantidade = float(buy[1])
+        total = float(valor*quantidade)
+        peso_ordem = float(total/volume_em_reais*1000)
+        print(i, " : ", buy, " - ", total, " - ", peso_ordem)
+
+    i = 0;
+    for sell in sellbook:
+        i = i + 1
+        print(i, " : ", sell)
 
 
-# TRADES
 
-# Histórico de operações executadas ou negociações realizadas.
+    # TRADES
 
-#  []: Lista de operações realizadas.
-# date: Data e hora da operação em Era Unix 
-# Tipo: Decimal
-# price: Preço unitário da operação.
-# Tipo: Decimal
-# amount: Quantidade da operação.
-# Tipo: Decimal
-# tid: Identificador da operação.
-# Tipo: Inteiro
-# type: Indica a ponta executora da operação 
-# Tipo: String
-# Domínio de dados:
-# buy : indica ordem de compra executora
-# sell : indica ordem de venda executora
+    # Histórico de operações executadas ou negociações realizadas.
+
+    #  []: Lista de operações realizadas.
+    # date: Data e hora da operação em Era Unix 
+    # Tipo: Decimal
+    # price: Preço unitário da operação.
+    # Tipo: Decimal
+    # amount: Quantidade da operação.
+    # Tipo: Decimal
+    # tid: Identificador da operação.
+    # Tipo: Inteiro
+    # type: Indica a ponta executora da operação 
+    # Tipo: String
+    # Domínio de dados:
+    # buy : indica ordem de compra executora
+    # sell : indica ordem de venda executora
+
+if __name__ == "__main__":
+    main()
