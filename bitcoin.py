@@ -50,7 +50,8 @@ sellbook = data['asks']
 i = 0;
 for buy in buybook:
     i = i + 1
-    print(i, " : ", buy)
+    amount = buy[0]*buy[1]
+    print(i, " : ", buy, " - ", amount)
 
 i = 0;
 for sell in sellbook:
